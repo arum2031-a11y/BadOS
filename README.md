@@ -69,6 +69,6 @@ Im also on the offical FlipperZero Discord server where if you want id like to s
 
 ## Magic Wand Companion (fan-made demo)
 
-This repo now includes a single-file browser app at `wand-companion/index.html` that demonstrates a wand-style Bluetooth pairing flow, spell trigger buttons, and a live event log.
+This repo now includes a single-file browser app at `wand-companion/index.html` with animated UI effects, a wand-style Bluetooth pairing flow, spell trigger buttons, and a live event log.
 
 Open `wand-companion/index.html` in a Chromium-based browser with Web Bluetooth support to try it.
