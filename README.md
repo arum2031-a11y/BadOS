@@ -66,3 +66,13 @@ Description : goes through your tabs 1-9 and check them out (May need to adjust 
 If YOU make some custom Scripts from BadOS id like to know, cause I would love to add more BadOS scripts based off the Flipper Community! 
 if you can my discord is "desktopsetup"
 Im also on the offical FlipperZero Discord server where if you want id like to see some.
+
+## Bonus: Playable Shooter Game
+
+I added a standalone browser game at `shooter_game.html`.
+
+### How to play
+1. Open `shooter_game.html` in any modern browser.
+2. Move with WASD or arrow keys.
+3. Aim with mouse and shoot with left click (or Space).
+4. Press R to restart after game over.
