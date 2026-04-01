@@ -66,3 +66,9 @@ Description : goes through your tabs 1-9 and check them out (May need to adjust 
 If YOU make some custom Scripts from BadOS id like to know, cause I would love to add more BadOS scripts based off the Flipper Community! 
 if you can my discord is "desktopsetup"
 Im also on the offical FlipperZero Discord server where if you want id like to see some.
+
+## Magic Wand Companion (fan-made demo)
+
+This repo now includes a single-file browser app at `wand-companion/index.html` with animated UI effects, a wand-style Bluetooth pairing flow, spell trigger buttons, and a live event log.
+
+Open `wand-companion/index.html` in a Chromium-based browser with Web Bluetooth support to try it.
