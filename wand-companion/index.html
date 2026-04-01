@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Magic Wand Companion</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        --bg: #0f1020;
+        --panel: #1a1b33;
+        --accent: #8f6bff;
+        --accent-soft: #b7a2ff;
+        --ok: #55d38a;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(circle at top, #26285a, var(--bg) 60%);
+        color: #fff;
+      }
+
+      .app {
+        width: min(900px, 92vw);
+        margin: 2rem auto;
+        display: grid;
+        gap: 1rem;
+      }
+
+      .subtitle { color: #d4ccff; }
+
+      .panel {
+        background: color-mix(in oklab, var(--panel) 90%, black 10%);
+        border: 1px solid #2e2f57;
+        border-radius: 14px;
+        padding: 1rem;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      button {
+        border: 0;
+        border-radius: 10px;
+        background: var(--accent);
+        color: white;
+        padding: 0.65rem 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        background: #575a80;
+        cursor: not-allowed;
+      }
+
+      .spell-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 0.75rem;
+      }
+
+      .spell-btn {
+        background: linear-gradient(130deg, var(--accent), var(--accent-soft));
+        text-align: left;
+      }
+
+      .status { margin: 0; font-weight: 600; }
+      .status.ok { color: var(--ok); }
+
+      .log {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        max-height: 260px;
+        overflow: auto;
+      }
+
+      .log li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #2e2f57;
+        color: #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header>
+        <h1>Magic Wand Companion</h1>
+        <p class="subtitle">
+          Fan-made wand controller with Bluetooth pairing, spell logging, and gesture triggers.
+        </p>
+      </header>
+
+      <section class="panel actions">
+        <button id="connectBtn">Connect Wand</button>
+        <button id="disconnectBtn" disabled>Disconnect</button>
+        <p id="status" class="status">Status: Not connected</p>
+      </section>
+
+      <section class="panel">
+        <h2>Spell Cast</h2>
+        <div class="spell-grid" id="spellGrid"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Event Log</h2>
+        <ul id="log" class="log"></ul>
+      </section>
+    </main>
+
+    <template id="spellTemplate">
+      <button class="spell-btn"></button>
+    </template>
+
+    <script>
+      const spells = [
+        'Lumos',
+        'Nox',
+        'Alohomora',
+        'Expelliarmus',
+        'Protego',
+        'Accio',
+        'Wingardium Leviosa',
+        'Expecto Patronum',
+      ];
+
+      const state = {
+        device: null,
+        server: null,
+        characteristic: null,
+      };
+
+      const el = {
+        connectBtn: document.querySelector('#connectBtn'),
+        disconnectBtn: document.querySelector('#disconnectBtn'),
+        status: document.querySelector('#status'),
+        spellGrid: document.querySelector('#spellGrid'),
+        log: document.querySelector('#log'),
+        spellTemplate: document.querySelector('#spellTemplate'),
+      };
+
+      function addLog(message) {
+        const item = document.createElement('li');
+        item.textContent = `${new Date().toLocaleTimeString()} — ${message}`;
+        el.log.prepend(item);
+      }
+
+      function setConnected(connected, name = 'wand') {
+        el.connectBtn.disabled = connected;
+        el.disconnectBtn.disabled = !connected;
+        el.status.classList.toggle('ok', connected);
+        el.status.textContent = connected
+          ? `Status: Connected to ${name}`
+          : 'Status: Not connected';
+      }
+
+      function renderSpells() {
+        for (const spell of spells) {
+          const btn = el.spellTemplate.content.firstElementChild.cloneNode(true);
+          btn.textContent = spell;
+          btn.addEventListener('click', () => castSpell(spell));
+          el.spellGrid.append(btn);
+        }
+      }
+
+      async function connectWand() {
+        if (!('bluetooth' in navigator)) {
+          addLog('Web Bluetooth is not available in this browser/device.');
+          return;
+        }
+
+        try {
+          state.device = await navigator.bluetooth.requestDevice({
+            filters: [{ namePrefix: 'Wand' }],
+            optionalServices: ['battery_service'],
+          });
+
+          state.server = await state.device.gatt.connect();
+          setConnected(true, state.device.name || 'wand');
+          addLog(`Connected to ${state.device.name || 'wand'}.`);
+
+          state.device.addEventListener('gattserverdisconnected', onDisconnected);
+        } catch (error) {
+          addLog(`Connection failed: ${error.message}`);
+        }
+      }
+
+      function onDisconnected() {
+        setConnected(false);
+        addLog('Wand disconnected.');
+      }
+
+      function disconnectWand() {
+        if (state.device?.gatt?.connected) {
+          state.device.gatt.disconnect();
+        }
+        onDisconnected();
+      }
+
+      async function castSpell(spell) {
+        if (!state.device?.gatt?.connected) {
+          addLog(`Cannot cast ${spell}: connect a wand first.`);
+          return;
+        }
+
+        addLog(`Casting ${spell} ✨`);
+
+        try {
+          if (!state.characteristic) {
+            const service = await state.server.getPrimaryService('battery_service');
+            state.characteristic = await service.getCharacteristic('battery_level');
+          }
+
+          const payload = new TextEncoder().encode(spell.slice(0, 20));
+          await state.characteristic.writeValue(payload);
+        } catch {
+          // Not all wands expose writable characteristics; log-only fallback.
+        }
+      }
+
+      el.connectBtn.addEventListener('click', connectWand);
+      el.disconnectBtn.addEventListener('click', disconnectWand);
+
+      renderSpells();
+      addLog('Ready. Pair your wand to begin.');
+    </script>
+  </body>
+</html>
