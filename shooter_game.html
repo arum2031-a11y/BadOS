@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BadOS - Neon Shooter</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090b10;
+      --panel: #111522;
+      --accent: #55e1ff;
+      --accent-2: #8bff6a;
+      --danger: #ff5f8f;
+      --text: #eef4ff;
+      --muted: #9faac0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(1200px 700px at 30% -10%, #1d2540 0%, transparent 60%),
+        radial-gradient(800px 600px at 100% 120%, #113030 0%, transparent 60%),
+        var(--bg);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      padding: 1rem;
+    }
+
+    .shell {
+      width: min(960px, 100%);
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .hud {
+      background: color-mix(in srgb, var(--panel), transparent 8%);
+      border: 1px solid color-mix(in srgb, var(--accent), transparent 75%);
+      border-radius: 12px;
+      padding: 0.8rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .hud span { color: var(--muted); }
+
+    .canvas-wrap {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid color-mix(in srgb, var(--accent), transparent 70%);
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.4);
+      background: #06080f;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 960px;
+      height: auto;
+      display: block;
+      aspect-ratio: 16 / 9;
+      background:
+        radial-gradient(circle at 50% 50%, #0f1728 0%, #070b15 65%),
+        #070b15;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      pointer-events: none;
+      padding: 1rem;
+    }
+
+    .card {
+      background: color-mix(in srgb, #080d19, transparent 8%);
+      border: 1px solid color-mix(in srgb, var(--accent), transparent 70%);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      max-width: 500px;
+      backdrop-filter: blur(2px);
+    }
+
+    .title {
+      margin: 0 0 0.35rem;
+      color: var(--accent);
+      letter-spacing: 0.03em;
+    }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.4;
+      font-size: 0.95rem;
+    }
+
+    .dead {
+      color: var(--danger);
+      font-weight: 700;
+      margin-top: 0.65rem;
+      display: none;
+    }
+
+    .controls {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    kbd {
+      background: #0e1423;
+      border: 1px solid #2b395f;
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      padding: 0.1rem 0.35rem;
+      color: #cbe4ff;
+      font-size: 0.84em;
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hud" aria-live="polite">
+      <div><strong>Score:</strong> <span id="score">0</span></div>
+      <div><strong>Wave:</strong> <span id="wave">1</span></div>
+      <div><strong>Health:</strong> <span id="health">100</span></div>
+      <div><strong>High Score:</strong> <span id="highScore">0</span></div>
+    </section>
+
+    <section class="canvas-wrap">
+      <canvas id="game" width="960" height="540" aria-label="Neon shooter game"></canvas>
+      <div class="overlay">
+        <div class="card" id="card">
+          <h1 class="title">NEON SHOOTER</h1>
+          <p class="hint">Survive each wave, blast enemies, and chase a high score.</p>
+          <p class="controls">
+            Move: <kbd>WASD</kbd>/<kbd>Arrow Keys</kbd> · Aim: Mouse · Shoot: Hold <kbd>Left Click</kbd> or <kbd>Space</kbd> · Restart: <kbd>R</kbd>
+          </p>
+          <p class="dead" id="deadMsg">You were overrun. Press R to restart.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+
+    const scoreEl = document.getElementById('score');
+    const waveEl = document.getElementById('wave');
+    const healthEl = document.getElementById('health');
+    const highScoreEl = document.getElementById('highScore');
+    const deadMsg = document.getElementById('deadMsg');
+
+    const keys = new Set();
+    const mouse = { x: canvas.width / 2, y: canvas.height / 2, down: false };
+
+    const state = {
+      running: true,
+      score: 0,
+      wave: 1,
+      health: 100,
+      highScore: Number(localStorage.getItem('neonShooterHighScore') || 0),
+      shootCooldown: 0,
+      enemyTimer: 0,
+      enemyInterval: 1000,
+      waveProgress: 0,
+      waveGoal: 12,
+      particles: [],
+      bullets: [],
+      enemies: []
+    };
+
+    highScoreEl.textContent = state.highScore;
+
+    const player = {
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+      radius: 16,
+      speed: 4.2,
+      facing: 0
+    };
+
+    function resetGame() {
+      state.running = true;
+      state.score = 0;
+      state.wave = 1;
+      state.health = 100;
+      state.shootCooldown = 0;
+      state.enemyTimer = 0;
+      state.enemyInterval = 1000;
+      state.waveProgress = 0;
+      state.waveGoal = 12;
+      state.particles = [];
+      state.bullets = [];
+      state.enemies = [];
+      player.x = canvas.width / 2;
+      player.y = canvas.height / 2;
+      deadMsg.style.display = 'none';
+      updateHUD();
+    }
+
+    function updateHUD() {
+      scoreEl.textContent = state.score;
+      waveEl.textContent = state.wave;
+      healthEl.textContent = Math.max(0, Math.round(state.health));
+      highScoreEl.textContent = state.highScore;
+    }
+
+    function spawnEnemy() {
+      const side = Math.floor(Math.random() * 4);
+      let x = 0;
+      let y = 0;
+      if (side === 0) { x = Math.random() * canvas.width; y = -20; }
+      else if (side === 1) { x = canvas.width + 20; y = Math.random() * canvas.height; }
+      else if (side === 2) { x = Math.random() * canvas.width; y = canvas.height + 20; }
+      else { x = -20; y = Math.random() * canvas.height; }
+
+      const speed = 1.1 + Math.random() * 0.8 + state.wave * 0.08;
+      const radius = 12 + Math.random() * 8;
+      const hp = 1 + Math.floor(state.wave / 3);
+
+      state.enemies.push({ x, y, speed, radius, hp });
+    }
+
+    function shoot() {
+      const angle = Math.atan2(mouse.y - player.y, mouse.x - player.x);
+      const speed = 10;
+      state.bullets.push({
+        x: player.x + Math.cos(angle) * (player.radius + 5),
+        y: player.y + Math.sin(angle) * (player.radius + 5),
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 70
+      });
+
+      for (let i = 0; i < 5; i++) {
+        const spread = angle + (Math.random() - 0.5) * 0.4;
+        const v = 1 + Math.random() * 2;
+        state.particles.push({
+          x: player.x,
+          y: player.y,
+          vx: Math.cos(spread) * v,
+          vy: Math.sin(spread) * v,
+          life: 15,
+          color: '#55e1ff'
+        });
+      }
+    }
+
+    function emitExplosion(x, y, color, count = 16) {
+      for (let i = 0; i < count; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const v = 0.5 + Math.random() * 4;
+        state.particles.push({
+          x,
+          y,
+          vx: Math.cos(a) * v,
+          vy: Math.sin(a) * v,
+          life: 20 + Math.random() * 25,
+          color
+        });
+      }
+    }
+
+    function clampPlayer() {
+      player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
+      player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
+    }
+
+    function update() {
+      if (!state.running) return;
+
+      const up = keys.has('w') || keys.has('arrowup');
+      const down = keys.has('s') || keys.has('arrowdown');
+      const left = keys.has('a') || keys.has('arrowleft');
+      const right = keys.has('d') || keys.has('arrowright');
+
+      const dx = (right ? 1 : 0) - (left ? 1 : 0);
+      const dy = (down ? 1 : 0) - (up ? 1 : 0);
+      if (dx || dy) {
+        const mag = Math.hypot(dx, dy);
+        player.x += (dx / mag) * player.speed;
+        player.y += (dy / mag) * player.speed;
+      }
+
+      player.facing = Math.atan2(mouse.y - player.y, mouse.x - player.x);
+      clampPlayer();
+
+      if (state.shootCooldown > 0) state.shootCooldown--;
+      if ((mouse.down || keys.has(' ')) && state.shootCooldown <= 0) {
+        shoot();
+        state.shootCooldown = 7;
+      }
+
+      state.enemyTimer += 16;
+      if (state.enemyTimer >= state.enemyInterval) {
+        state.enemyTimer = 0;
+        spawnEnemy();
+      }
+
+      for (let i = state.bullets.length - 1; i >= 0; i--) {
+        const b = state.bullets[i];
+        b.x += b.vx;
+        b.y += b.vy;
+        b.life--;
+        if (b.life <= 0 || b.x < -30 || b.x > canvas.width + 30 || b.y < -30 || b.y > canvas.height + 30) {
+          state.bullets.splice(i, 1);
+        }
+      }
+
+      for (let i = state.enemies.length - 1; i >= 0; i--) {
+        const e = state.enemies[i];
+        const a = Math.atan2(player.y - e.y, player.x - e.x);
+        e.x += Math.cos(a) * e.speed;
+        e.y += Math.sin(a) * e.speed;
+
+        const distToPlayer = Math.hypot(e.x - player.x, e.y - player.y);
+        if (distToPlayer < e.radius + player.radius) {
+          state.health -= 0.35 + state.wave * 0.03;
+          emitExplosion(player.x, player.y, '#ff5f8f', 5);
+          if (state.health <= 0) {
+            state.running = false;
+            deadMsg.style.display = 'block';
+            if (state.score > state.highScore) {
+              state.highScore = state.score;
+              localStorage.setItem('neonShooterHighScore', String(state.highScore));
+            }
+          }
+        }
+
+        for (let j = state.bullets.length - 1; j >= 0; j--) {
+          const b = state.bullets[j];
+          const hit = Math.hypot(e.x - b.x, e.y - b.y) < e.radius + 3;
+          if (!hit) continue;
+
+          state.bullets.splice(j, 1);
+          e.hp -= 1;
+          emitExplosion(b.x, b.y, '#8bff6a', 6);
+
+          if (e.hp <= 0) {
+            emitExplosion(e.x, e.y, '#8bff6a', 18);
+            state.enemies.splice(i, 1);
+            state.score += 10;
+            state.waveProgress += 1;
+
+            if (state.waveProgress >= state.waveGoal) {
+              state.wave += 1;
+              state.waveProgress = 0;
+              state.waveGoal = Math.floor(state.waveGoal * 1.18);
+              state.enemyInterval = Math.max(350, state.enemyInterval - 70);
+              state.health = Math.min(100, state.health + 10);
+            }
+            break;
+          }
+        }
+      }
+
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const p = state.particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vx *= 0.98;
+        p.vy *= 0.98;
+        p.life--;
+        if (p.life <= 0) state.particles.splice(i, 1);
+      }
+
+      if (state.score > state.highScore) {
+        state.highScore = state.score;
+        localStorage.setItem('neonShooterHighScore', String(state.highScore));
+      }
+
+      updateHUD();
+    }
+
+    function drawGrid() {
+      ctx.save();
+      ctx.globalAlpha = 0.13;
+      ctx.strokeStyle = '#7aa3ff';
+      ctx.lineWidth = 1;
+      const step = 40;
+      for (let x = 0; x <= canvas.width; x += step) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= canvas.height; y += step) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawGrid();
+
+      for (const p of state.particles) {
+        ctx.globalAlpha = Math.max(0, p.life / 30);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2.3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      for (const b of state.bullets) {
+        ctx.fillStyle = '#55e1ff';
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      for (const e of state.enemies) {
+        const hpScale = Math.max(0.2, e.hp / (1 + Math.floor(state.wave / 3)));
+        ctx.fillStyle = `rgba(255,95,143,${0.55 + hpScale * 0.35})`;
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#ff9dbb';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      ctx.save();
+      ctx.translate(player.x, player.y);
+      ctx.rotate(player.facing);
+
+      ctx.fillStyle = '#7bf2ff';
+      ctx.beginPath();
+      ctx.moveTo(18, 0);
+      ctx.lineTo(-12, 10);
+      ctx.lineTo(-8, 0);
+      ctx.lineTo(-12, -10);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#b5fff0';
+      ctx.beginPath();
+      ctx.arc(0, 0, player.radius - 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      if (!state.running) {
+        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    function loop() {
+      update();
+      render();
+      requestAnimationFrame(loop);
+    }
+
+    window.addEventListener('keydown', (e) => {
+      const key = e.key.toLowerCase();
+      keys.add(key);
+      if (key === 'r' && !state.running) resetGame();
+      if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) e.preventDefault();
+    });
+
+    window.addEventListener('keyup', (e) => {
+      keys.delete(e.key.toLowerCase());
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = (e.clientX - rect.left) * (canvas.width / rect.width);
+      mouse.y = (e.clientY - rect.top) * (canvas.height / rect.height);
+    });
+    canvas.addEventListener('mousedown', () => { mouse.down = true; });
+    window.addEventListener('mouseup', () => { mouse.down = false; });
+
+    resetGame();
+    loop();
+  </script>
+</body>
+</html>
