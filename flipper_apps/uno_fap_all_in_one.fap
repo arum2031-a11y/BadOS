@@ -1,0 +1,17 @@
+UNO Mini FAP PACKAGE PLACEHOLDER
+===============================
+
+This repository environment cannot compile a real Flipper Zero binary `.fap`
+(no `fbt` toolchain and no network access to install it).
+
+Use this source file to build the real app binary on a Flipper firmware tree:
+- Source: flipper_apps/uno_fap_all_in_one.c
+- Entry point: uno_app
+
+Manifest block is embedded at the top of the source file.
+
+Build command on a proper Flipper SDK/firmware setup:
+  ./fbt fap_uno_fap
+
+Expected binary output:
+  build/f7-firmware-D/.extapps/Games/uno_fap.fap
