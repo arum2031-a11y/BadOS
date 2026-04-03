@@ -3,41 +3,46 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Proxyium-Style Landing Page</title>
+    <title>Proxyium Clone (Working Demo)</title>
     <style>
       :root {
-        --bg-1: #0f1226;
-        --bg-2: #1e2657;
-        --card: #121830;
-        --text: #f8fbff;
-        --muted: #b8c0dc;
-        --accent: #6ea8ff;
-        --accent-2: #77f0c8;
-        --ring: rgba(110, 168, 255, 0.35);
+        --bg-a: #0b1020;
+        --bg-b: #182246;
+        --panel: #0f1734;
+        --panel-2: #101c44;
+        --text: #eef4ff;
+        --muted: #bcc7e5;
+        --accent: #68a9ff;
+        --accent-2: #61efc8;
+        --border: rgba(255, 255, 255, 0.14);
       }
 
       * {
         box-sizing: border-box;
       }
 
+      html,
       body {
         margin: 0;
+        height: 100%;
         font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
         color: var(--text);
-        background: radial-gradient(circle at top, var(--bg-2), var(--bg-1) 55%);
-        min-height: 100vh;
+        background: radial-gradient(circle at 20% 0%, var(--bg-b), var(--bg-a) 62%);
       }
 
-      .container {
-        width: min(980px, 92vw);
-        margin: 0 auto;
+      .app {
+        min-height: 100%;
+        display: grid;
+        grid-template-rows: auto auto 1fr auto;
       }
 
       header {
-        padding: 22px 0;
+        padding: 18px 18px 8px;
       }
 
-      .nav {
+      .brand-row {
+        max-width: 1120px;
+        margin: 0 auto;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -45,137 +50,255 @@
 
       .brand {
         font-weight: 800;
-        letter-spacing: 0.4px;
+        letter-spacing: 0.3px;
         font-size: 1.2rem;
       }
 
-      .hero {
-        margin-top: 52px;
-        text-align: center;
-      }
-
-      .hero h1 {
-        margin: 0;
-        font-size: clamp(2rem, 5vw, 3rem);
-        line-height: 1.15;
-      }
-
-      .hero p {
-        margin: 14px auto 0;
-        color: var(--muted);
-        max-width: 700px;
-        font-size: 1.05rem;
-      }
-
-      .proxy-form {
-        margin: 30px auto 0;
-        max-width: 780px;
-        display: flex;
-        gap: 12px;
-        padding: 12px;
-        border-radius: 16px;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        backdrop-filter: blur(4px);
-      }
-
-      .proxy-form input {
-        flex: 1;
-        border: 0;
-        border-radius: 12px;
-        background: #f3f6ff;
-        color: #0f1739;
-        padding: 14px 16px;
-        font-size: 1rem;
-        outline: none;
-      }
-
-      .proxy-form input:focus {
-        box-shadow: 0 0 0 4px var(--ring);
-      }
-
-      .proxy-form button {
-        border: 0;
-        border-radius: 12px;
-        padding: 0 20px;
-        font-size: 1rem;
+      .badge {
+        font-size: 0.78rem;
+        color: #071127;
         font-weight: 700;
-        cursor: pointer;
-        color: #031327;
+        padding: 7px 10px;
+        border-radius: 999px;
         background: linear-gradient(135deg, var(--accent), var(--accent-2));
       }
 
-      .features {
-        margin-top: 46px;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 16px;
+      .hero {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 8px 18px 20px;
       }
 
-      .feature {
-        background: rgba(14, 20, 45, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 14px;
-        padding: 18px;
+      .hero h1 {
+        margin: 8px 0 0;
+        font-size: clamp(1.6rem, 3.7vw, 2.6rem);
       }
 
-      .feature h3 {
-        margin: 0;
-        font-size: 1.02rem;
-      }
-
-      .feature p {
+      .hero p {
         margin: 10px 0 0;
         color: var(--muted);
-        line-height: 1.45;
-        font-size: 0.95rem;
+      }
+
+      .toolbar-wrap {
+        padding: 0 18px;
+      }
+
+      .toolbar {
+        max-width: 1120px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 10px;
+      }
+
+      .url-row {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 8px;
+      }
+
+      .small-btn,
+      .go-btn,
+      select,
+      input {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 11px 12px;
+        font: inherit;
+      }
+
+      input,
+      select,
+      .small-btn {
+        background: #f4f7ff;
+        color: #101939;
+      }
+
+      input:focus,
+      select:focus {
+        outline: 2px solid rgba(104, 169, 255, 0.45);
+      }
+
+      .small-btn {
+        min-width: 42px;
+        cursor: pointer;
+      }
+
+      .go-btn {
+        border: 0;
+        cursor: pointer;
+        color: #041127;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      }
+
+      .viewer {
+        padding: 12px 18px 0;
+      }
+
+      .frame-shell {
+        max-width: 1120px;
+        height: min(72vh, 860px);
+        margin: 0 auto;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        background: rgba(7, 11, 26, 0.85);
+      }
+
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: #fff;
+      }
+
+      .status {
+        max-width: 1120px;
+        margin: 10px auto 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.4;
       }
 
       footer {
-        margin-top: 48px;
-        padding: 20px 0 28px;
-        text-align: center;
+        padding: 14px 18px 22px;
         color: var(--muted);
-        font-size: 0.9rem;
+        font-size: 0.83rem;
+      }
+
+      footer .inner {
+        max-width: 1120px;
+        margin: 0 auto;
+      }
+
+      @media (max-width: 840px) {
+        .toolbar {
+          grid-template-columns: 1fr;
+        }
+
+        .url-row {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
   <body>
-    <header>
-      <div class="container nav">
-        <div class="brand">Proxyium</div>
-      </div>
-    </header>
+    <div class="app">
+      <header>
+        <div class="brand-row">
+          <div class="brand">Proxyium</div>
+          <div class="badge">Working Demo</div>
+        </div>
+      </header>
 
-    <main class="container hero">
-      <h1>Fast &amp; Private Web Proxy</h1>
-      <p>
-        Open blocked websites from school, work, or public networks while keeping your browsing private.
-      </p>
-
-      <form class="proxy-form" onsubmit="event.preventDefault(); alert('Demo only. Connect your backend proxy endpoint here.');">
-        <input type="url" placeholder="Enter URL (e.g., https://example.com)" required />
-        <button type="submit">Go</button>
-      </form>
-
-      <section class="features">
-        <article class="feature">
-          <h3>Secure Connection</h3>
-          <p>Traffic is encrypted in transit and routed through a proxy layer.</p>
-        </article>
-        <article class="feature">
-          <h3>No Installation</h3>
-          <p>Use directly in the browser without extensions or additional software.</p>
-        </article>
-        <article class="feature">
-          <h3>Simple Interface</h3>
-          <p>Paste a URL, press Go, and access content in seconds.</p>
-        </article>
+      <section class="hero">
+        <h1>Browse through a web proxy</h1>
+        <p>Enter a URL, choose a proxy mode, and load the page below.</p>
       </section>
-    </main>
 
-    <footer>
-      Demo HTML recreation inspired by proxy landing page layouts.
-    </footer>
+      <section class="toolbar-wrap">
+        <form class="toolbar" id="proxy-form">
+          <div class="url-row">
+            <button class="small-btn" id="home-btn" type="button" title="Home">⌂</button>
+            <input id="url-input" type="text" placeholder="https://example.com" required />
+            <button class="go-btn" type="submit">Go</button>
+          </div>
+
+          <select id="proxy-mode" aria-label="Proxy mode">
+            <option value="r-jina-http">r.jina.ai (HTTP mirror)</option>
+            <option value="r-jina-https" selected>r.jina.ai (HTTPS mirror)</option>
+            <option value="open-direct">Open direct in new tab</option>
+          </select>
+        </form>
+
+        <div class="status" id="status">Ready.</div>
+      </section>
+
+      <section class="viewer">
+        <div class="frame-shell">
+          <iframe id="viewer-frame" title="Proxy viewer" referrerpolicy="no-referrer"></iframe>
+        </div>
+      </section>
+
+      <footer>
+        <div class="inner">
+          Use only where permitted. Some targets block embedding/proxy access and may fail to load.
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      const form = document.getElementById('proxy-form');
+      const urlInput = document.getElementById('url-input');
+      const modeSelect = document.getElementById('proxy-mode');
+      const viewerFrame = document.getElementById('viewer-frame');
+      const statusEl = document.getElementById('status');
+      const homeBtn = document.getElementById('home-btn');
+
+      function normalizeUrl(value) {
+        const trimmed = value.trim();
+        if (!trimmed) return '';
+        if (/^https?:\/\//i.test(trimmed)) return trimmed;
+        return `https://${trimmed}`;
+      }
+
+      function buildProxyUrl(rawUrl, mode) {
+        if (mode === 'r-jina-http') {
+          return `https://r.jina.ai/http://${rawUrl.replace(/^https?:\/\//i, '')}`;
+        }
+
+        if (mode === 'r-jina-https') {
+          return `https://r.jina.ai/http://${rawUrl}`.replace('http://https://', 'http://');
+        }
+
+        return rawUrl;
+      }
+
+      function setStatus(text) {
+        statusEl.textContent = text;
+      }
+
+      function loadUrl(inputValue) {
+        const normalized = normalizeUrl(inputValue);
+        if (!normalized) {
+          setStatus('Enter a valid URL first.');
+          return;
+        }
+
+        const mode = modeSelect.value;
+
+        if (mode === 'open-direct') {
+          window.open(normalized, '_blank', 'noopener,noreferrer');
+          setStatus(`Opened directly in new tab: ${normalized}`);
+          return;
+        }
+
+        const proxiedUrl = buildProxyUrl(normalized, mode);
+        viewerFrame.src = proxiedUrl;
+        setStatus(`Loading: ${normalized} (via ${mode})`);
+      }
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        loadUrl(urlInput.value);
+      });
+
+      homeBtn.addEventListener('click', () => {
+        urlInput.value = 'https://example.com';
+        loadUrl(urlInput.value);
+      });
+
+      viewerFrame.addEventListener('load', () => {
+        setStatus('Page loaded (if target allows proxy/embedding).');
+      });
+
+      urlInput.value = 'https://example.com';
+      loadUrl(urlInput.value);
+    </script>
   </body>
 </html>
