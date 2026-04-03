@@ -3,83 +3,174 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ChatGPT API HTML Demo</title>
+  <title>ChatGPT (Local HTML Mock)</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
-    textarea, input, button { width: 100%; box-sizing: border-box; margin-top: 0.5rem; }
-    textarea { min-height: 120px; }
-    #output { white-space: pre-wrap; border: 1px solid #ddd; padding: 1rem; border-radius: 8px; min-height: 120px; margin-top: 1rem; }
-    .note { font-size: 0.9rem; color: #b45309; margin-top: 0.5rem; }
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --user: #2563eb;
+      --assistant: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --border: #334155;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+    }
+
+    .app {
+      width: min(900px, 100%);
+      height: min(92vh, 900px);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    .header {
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+    }
+
+    .messages {
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .msg {
+      max-width: 85%;
+      padding: 0.75rem 0.95rem;
+      border-radius: 12px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+
+    .assistant {
+      align-self: flex-start;
+      background: var(--assistant);
+      border: 1px solid #374151;
+    }
+
+    .user {
+      align-self: flex-end;
+      background: var(--user);
+      color: white;
+    }
+
+    .composer {
+      border-top: 1px solid var(--border);
+      padding: 0.75rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.5rem;
+      background: #0b1220;
+    }
+
+    textarea {
+      resize: none;
+      height: 56px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      color: var(--text);
+      padding: 0.75rem;
+      font: inherit;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      background: #22c55e;
+      color: #052e16;
+      padding: 0 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .subtle {
+      color: var(--muted);
+      font-size: 0.85rem;
+      padding: 0 1rem 0.75rem;
+    }
   </style>
 </head>
 <body>
-  <h1>ChatGPT API HTML Demo</h1>
+  <main class="app" role="application" aria-label="Local ChatGPT mock UI">
+    <div class="header">ChatGPT</div>
 
-  <label for="apiKey">OpenAI API Key</label>
-  <input id="apiKey" type="password" placeholder="sk-..." />
+    <section id="messages" class="messages" aria-live="polite">
+      <div class="msg assistant">Hey! I’m a local ChatGPT-style HTML mock.
+I don’t use an API — I just simulate chat in-browser.</div>
+    </section>
 
-  <label for="prompt">Prompt</label>
-  <textarea id="prompt" placeholder="Ask something..."></textarea>
+    <form id="composer" class="composer">
+      <textarea id="input" placeholder="Message ChatGPT..." required></textarea>
+      <button type="submit">Send</button>
+    </form>
 
-  <button id="sendBtn">Send</button>
-
-  <div class="note">
-    Warning: Putting API keys directly in front-end code is not safe for production.
-    Use a backend proxy for real apps.
-  </div>
-
-  <h2>Response</h2>
-  <div id="output">(response will appear here)</div>
+    <div class="subtle">This is a pure HTML/CSS/JS chat mock (no API calls).</div>
+  </main>
 
   <script>
-    const sendBtn = document.getElementById('sendBtn');
-    const apiKeyInput = document.getElementById('apiKey');
-    const promptInput = document.getElementById('prompt');
-    const output = document.getElementById('output');
+    const messages = document.getElementById('messages');
+    const composer = document.getElementById('composer');
+    const input = document.getElementById('input');
 
-    async function callChatGPT() {
-      const apiKey = apiKeyInput.value.trim();
-      const prompt = promptInput.value.trim();
-
-      if (!apiKey || !prompt) {
-        output.textContent = 'Please enter both API key and prompt.';
-        return;
-      }
-
-      sendBtn.disabled = true;
-      output.textContent = 'Loading...';
-
-      try {
-        const response = await fetch('https://api.openai.com/v1/responses', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            model: 'gpt-4.1-mini',
-            input: prompt
-          })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          output.textContent = data.error?.message || 'Request failed.';
-          return;
-        }
-
-        // Common place for text output in Responses API
-        const text = data.output_text || '(No text output returned.)';
-        output.textContent = text;
-      } catch (err) {
-        output.textContent = `Error: ${err.message}`;
-      } finally {
-        sendBtn.disabled = false;
-      }
+    function addMessage(text, role) {
+      const div = document.createElement('div');
+      div.className = `msg ${role}`;
+      div.textContent = text;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
     }
 
-    sendBtn.addEventListener('click', callChatGPT);
+    function fakeAssistantReply(userText) {
+      const lower = userText.toLowerCase();
+
+      if (lower.includes('hello') || lower.includes('hi')) {
+        return 'Hey 👋  Nice to chat with you!';
+      }
+      if (lower.includes('who are you')) {
+        return 'I’m a local ChatGPT-style interface built with plain HTML/CSS/JS.';
+      }
+      if (lower.includes('code')) {
+        return 'Sure — tell me what you want to build and I’ll draft it.';
+      }
+      return `You said: "${userText}"\n\n(For real AI answers, connect this UI to a backend later.)`;
+    }
+
+    composer.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+
+      addMessage(text, 'user');
+      input.value = '';
+
+      addMessage('Thinking...', 'assistant');
+      const thinkingBubble = messages.lastElementChild;
+
+      setTimeout(() => {
+        thinkingBubble.textContent = fakeAssistantReply(text);
+      }, 500);
+    });
   </script>
 </body>
 </html>
