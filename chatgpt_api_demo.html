@@ -3,16 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ChatGPT (Local HTML Mock)</title>
+  <title>VPN Connection</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --panel: #111827;
-      --user: #2563eb;
-      --assistant: #1f2937;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --border: #334155;
+      --bg: #0b1020;
+      --card: #121a31;
+      --border: #263350;
+      --text: #e6edf7;
+      --muted: #9fb0d1;
+      --green: #22c55e;
+      --green-d: #14532d;
+      --red: #ef4444;
+      --red-d: #7f1d1d;
     }
 
     * { box-sizing: border-box; }
@@ -20,156 +22,144 @@
     body {
       margin: 0;
       min-height: 100vh;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       display: grid;
       place-items: center;
+      background: radial-gradient(circle at top, #141f3c 0%, var(--bg) 55%);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       padding: 1rem;
     }
 
-    .app {
-      width: min(900px, 100%);
-      height: min(92vh, 900px);
-      background: var(--panel);
+    .card {
+      width: min(460px, 100%);
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 16px;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+      padding: 1.1rem;
+      box-shadow: 0 22px 44px rgba(0, 0, 0, 0.35);
     }
 
-    .header {
-      padding: 0.9rem 1rem;
-      border-bottom: 1px solid var(--border);
-      font-weight: 700;
+    h1 {
+      margin: 0 0 0.75rem;
+      font-size: 1.25rem;
     }
 
-    .messages {
-      padding: 1rem;
-      overflow-y: auto;
+    .row {
       display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid rgba(159, 176, 209, 0.15);
+      gap: 1rem;
     }
 
-    .msg {
-      max-width: 85%;
-      padding: 0.75rem 0.95rem;
-      border-radius: 12px;
-      line-height: 1.4;
-      white-space: pre-wrap;
+    .row:last-of-type { border-bottom: none; }
+
+    .label { color: var(--muted); }
+
+    .value {
+      font-weight: 700;
+      text-align: right;
+      word-break: break-word;
     }
 
-    .assistant {
-      align-self: flex-start;
-      background: var(--assistant);
-      border: 1px solid #374151;
-    }
-
-    .user {
-      align-self: flex-end;
-      background: var(--user);
-      color: white;
-    }
-
-    .composer {
-      border-top: 1px solid var(--border);
-      padding: 0.75rem;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 0.5rem;
-      background: #0b1220;
-    }
-
-    textarea {
-      resize: none;
-      height: 56px;
+    .status {
+      margin-top: 0.85rem;
+      padding: 0.7rem;
       border-radius: 10px;
-      border: 1px solid var(--border);
-      background: #0f172a;
-      color: var(--text);
-      padding: 0.75rem;
-      font: inherit;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .connected {
+      background: color-mix(in srgb, var(--green-d) 72%, transparent);
+      border: 1px solid color-mix(in srgb, var(--green) 40%, #000);
+      color: #b9f8cf;
+    }
+
+    .disconnected {
+      background: color-mix(in srgb, var(--red-d) 72%, transparent);
+      border: 1px solid color-mix(in srgb, var(--red) 45%, #000);
+      color: #fecaca;
+    }
+
+    .controls {
+      margin-top: 0.9rem;
+      display: grid;
+      gap: 0.5rem;
+      grid-template-columns: 1fr 1fr;
     }
 
     button {
       border: none;
       border-radius: 10px;
-      background: #22c55e;
-      color: #052e16;
-      padding: 0 1rem;
+      padding: 0.7rem 0.9rem;
       font-weight: 700;
       cursor: pointer;
     }
 
-    .subtle {
-      color: var(--muted);
+    #connectBtn {
+      background: var(--green);
+      color: #052e16;
+    }
+
+    #disconnectBtn {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .note {
+      margin-top: 0.8rem;
       font-size: 0.85rem;
-      padding: 0 1rem 0.75rem;
+      color: var(--muted);
     }
   </style>
 </head>
 <body>
-  <main class="app" role="application" aria-label="Local ChatGPT mock UI">
-    <div class="header">ChatGPT</div>
+  <main class="card">
+    <h1>VPN Status</h1>
 
-    <section id="messages" class="messages" aria-live="polite">
-      <div class="msg assistant">Hey! I’m a local ChatGPT-style HTML mock.
-I don’t use an API — I just simulate chat in-browser.</div>
-    </section>
+    <div class="row">
+      <span class="label">Device</span>
+      <span class="value">Home MacBook</span>
+    </div>
+    <div class="row">
+      <span class="label">Tunnel Name</span>
+      <span class="value">Home-Mac-Secure</span>
+    </div>
+    <div class="row">
+      <span class="label">Protocol</span>
+      <span class="value">WireGuard</span>
+    </div>
+    <div class="row">
+      <span class="label">Assigned IP</span>
+      <span id="ipValue" class="value">10.0.8.2</span>
+    </div>
 
-    <form id="composer" class="composer">
-      <textarea id="input" placeholder="Message ChatGPT..." required></textarea>
-      <button type="submit">Send</button>
-    </form>
+    <div id="statusBox" class="status disconnected">Disconnected</div>
 
-    <div class="subtle">This is a pure HTML/CSS/JS chat mock (no API calls).</div>
+    <div class="controls">
+      <button id="connectBtn" type="button">Connect</button>
+      <button id="disconnectBtn" type="button">Disconnect</button>
+    </div>
+
+    <p class="note">This is a visual HTML mock of VPN status UI, not a real VPN client.</p>
   </main>
 
   <script>
-    const messages = document.getElementById('messages');
-    const composer = document.getElementById('composer');
-    const input = document.getElementById('input');
+    const statusBox = document.getElementById('statusBox');
+    const ipValue = document.getElementById('ipValue');
 
-    function addMessage(text, role) {
-      const div = document.createElement('div');
-      div.className = `msg ${role}`;
-      div.textContent = text;
-      messages.appendChild(div);
-      messages.scrollTop = messages.scrollHeight;
-    }
+    document.getElementById('connectBtn').addEventListener('click', () => {
+      statusBox.textContent = 'Connected to Home MacBook';
+      statusBox.className = 'status connected';
+      ipValue.textContent = '10.0.8.2';
+    });
 
-    function fakeAssistantReply(userText) {
-      const lower = userText.toLowerCase();
-
-      if (lower.includes('hello') || lower.includes('hi')) {
-        return 'Hey 👋  Nice to chat with you!';
-      }
-      if (lower.includes('who are you')) {
-        return 'I’m a local ChatGPT-style interface built with plain HTML/CSS/JS.';
-      }
-      if (lower.includes('code')) {
-        return 'Sure — tell me what you want to build and I’ll draft it.';
-      }
-      return `You said: "${userText}"\n\n(For real AI answers, connect this UI to a backend later.)`;
-    }
-
-    composer.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const text = input.value.trim();
-      if (!text) return;
-
-      addMessage(text, 'user');
-      input.value = '';
-
-      addMessage('Thinking...', 'assistant');
-      const thinkingBubble = messages.lastElementChild;
-
-      setTimeout(() => {
-        thinkingBubble.textContent = fakeAssistantReply(text);
-      }, 500);
+    document.getElementById('disconnectBtn').addEventListener('click', () => {
+      statusBox.textContent = 'Disconnected';
+      statusBox.className = 'status disconnected';
+      ipValue.textContent = '—';
     });
   </script>
 </body>
