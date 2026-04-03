@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spotify Web Clone</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <h1>Spotify Clone</h1>
+        <p class="sub">Connect with your own Spotify account (OAuth)</p>
+      </header>
+
+      <section class="card auth-card">
+        <h2>1) Connect Spotify</h2>
+        <p>
+          Add your Spotify app <strong>Client ID</strong>, then sign in. Your token is
+          stored in your browser only.
+        </p>
+        <label for="clientId">Spotify Client ID</label>
+        <input id="clientId" type="text" placeholder="Paste your Spotify Client ID" />
+
+        <label for="redirectUri">Redirect URI (must match your Spotify app)</label>
+        <input id="redirectUri" type="text" />
+
+        <div class="row">
+          <button id="loginBtn" class="primary">Login with Spotify</button>
+          <button id="logoutBtn" class="ghost">Logout</button>
+        </div>
+        <p id="authStatus" class="status">Not connected</p>
+      </section>
+
+      <section class="card now-playing">
+        <h2>2) Now Playing</h2>
+        <div id="trackInfo" class="track-info">No track loaded yet.</div>
+        <div class="row">
+          <button id="prevBtn">⏮</button>
+          <button id="playPauseBtn">⏯</button>
+          <button id="nextBtn">⏭</button>
+        </div>
+        <p class="hint">Playback controls require Spotify Premium + an active device.</p>
+      </section>
+
+      <section class="card search-card">
+        <h2>3) Search Tracks</h2>
+        <div class="row">
+          <input id="searchInput" type="text" placeholder="Search songs or artists" />
+          <button id="searchBtn" class="primary">Search</button>
+        </div>
+        <ul id="results" class="results"></ul>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
