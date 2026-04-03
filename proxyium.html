@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Proxyium Browser Launcher</title>
+    <style>
+      :root {
+        --bg-a: #0a0f22;
+        --bg-b: #1a2c62;
+        --text: #eef4ff;
+        --muted: #bec9eb;
+        --accent: #67a9ff;
+        --accent2: #63ecc8;
+        --panel: rgba(255, 255, 255, 0.08);
+        --border: rgba(255, 255, 255, 0.16);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--text);
+        font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+        background: radial-gradient(circle at 10% 0%, var(--bg-b), var(--bg-a) 62%);
+        display: grid;
+        place-items: center;
+      }
+      .card {
+        width: min(900px, 94vw);
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 22px;
+        backdrop-filter: blur(5px);
+      }
+      .brand { font-weight: 800; font-size: 1.25rem; }
+      h1 { margin: 12px 0 8px; font-size: clamp(1.6rem, 4vw, 2.5rem); }
+      p { margin: 0; color: var(--muted); }
+      form {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+      }
+      .row {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+      }
+      input, select, button {
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        padding: 12px 14px;
+        font: inherit;
+      }
+      input, select { background: #f4f7ff; color: #102043; }
+      button {
+        border: 0;
+        cursor: pointer;
+        color: #081426;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+      }
+      .quick {
+        margin-top: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .quick button {
+        background: rgba(255,255,255,.15);
+        color: var(--text);
+        border: 1px solid var(--border);
+        font-weight: 600;
+      }
+      .status { margin-top: 12px; color: var(--muted); font-size: .92rem; }
+      .note { margin-top: 10px; font-size: .85rem; color: var(--muted); }
+      @media (max-width: 700px) {
+        .row { grid-template-columns: 1fr; }
+        form { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <div class="brand">Proxyium</div>
+      <h1>Real browsing launcher</h1>
+      <p>This opens sites in full browser context (same tab/new tab), with optional proxy mirror mode.</p>
+
+      <form id="launch-form">
+        <div class="row">
+          <input id="url-input" type="text" placeholder="https://google.com" required />
+          <select id="mode">
+            <option value="direct-same" selected>Browse directly (same tab)</option>
+            <option value="direct-new">Browse directly (new tab)</option>
+            <option value="proxy-jina">Proxy mirror (r.jina.ai)</option>
+          </select>
+        </div>
+        <button type="submit">Browse</button>
+      </form>
+
+      <div class="quick">
+        <button type="button" data-url="https://google.com">Google</button>
+        <button type="button" data-url="https://youtube.com">YouTube</button>
+        <button type="button" data-url="https://wikipedia.org">Wikipedia</button>
+        <button type="button" data-url="https://reddit.com">Reddit</button>
+      </div>
+
+      <div class="status" id="status">Ready.</div>
+      <div class="note">Note: many modern sites block iframe embedding; direct modes are used for real browsing.</div>
+    </main>
+
+    <script>
+      const form = document.getElementById('launch-form');
+      const input = document.getElementById('url-input');
+      const mode = document.getElementById('mode');
+      const status = document.getElementById('status');
+      const quickButtons = document.querySelectorAll('.quick button');
+
+      function normalizeUrl(value) {
+        const trimmed = value.trim();
+        if (!trimmed) return '';
+        if (/^https?:\/\//i.test(trimmed)) return trimmed;
+        return `https://${trimmed}`;
+      }
+
+      function proxyUrl(url) {
+        return `https://r.jina.ai/http://${url.replace(/^https?:\/\//i, '')}`;
+      }
+
+      function launch(url) {
+        const normalized = normalizeUrl(url);
+        if (!normalized) {
+          status.textContent = 'Enter a valid URL first.';
+          return;
+        }
+
+        if (mode.value === 'direct-same') {
+          status.textContent = `Opening in same tab: ${normalized}`;
+          window.location.href = normalized;
+          return;
+        }
+
+        if (mode.value === 'direct-new') {
+          status.textContent = `Opening in new tab: ${normalized}`;
+          window.open(normalized, '_blank', 'noopener,noreferrer');
+          return;
+        }
+
+        const mirrored = proxyUrl(normalized);
+        status.textContent = `Opening proxy mirror: ${mirrored}`;
+        window.location.href = mirrored;
+      }
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        launch(input.value);
+      });
+
+      quickButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          input.value = button.dataset.url;
+          launch(input.value);
+        });
+      });
+
+      input.value = 'https://google.com';
+    </script>
+  </body>
+</html>
