@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Proxyium-Style Landing Page</title>
+    <style>
+      :root {
+        --bg-1: #0f1226;
+        --bg-2: #1e2657;
+        --card: #121830;
+        --text: #f8fbff;
+        --muted: #b8c0dc;
+        --accent: #6ea8ff;
+        --accent-2: #77f0c8;
+        --ring: rgba(110, 168, 255, 0.35);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+        color: var(--text);
+        background: radial-gradient(circle at top, var(--bg-2), var(--bg-1) 55%);
+        min-height: 100vh;
+      }
+
+      .container {
+        width: min(980px, 92vw);
+        margin: 0 auto;
+      }
+
+      header {
+        padding: 22px 0;
+      }
+
+      .nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .brand {
+        font-weight: 800;
+        letter-spacing: 0.4px;
+        font-size: 1.2rem;
+      }
+
+      .hero {
+        margin-top: 52px;
+        text-align: center;
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-size: clamp(2rem, 5vw, 3rem);
+        line-height: 1.15;
+      }
+
+      .hero p {
+        margin: 14px auto 0;
+        color: var(--muted);
+        max-width: 700px;
+        font-size: 1.05rem;
+      }
+
+      .proxy-form {
+        margin: 30px auto 0;
+        max-width: 780px;
+        display: flex;
+        gap: 12px;
+        padding: 12px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(4px);
+      }
+
+      .proxy-form input {
+        flex: 1;
+        border: 0;
+        border-radius: 12px;
+        background: #f3f6ff;
+        color: #0f1739;
+        padding: 14px 16px;
+        font-size: 1rem;
+        outline: none;
+      }
+
+      .proxy-form input:focus {
+        box-shadow: 0 0 0 4px var(--ring);
+      }
+
+      .proxy-form button {
+        border: 0;
+        border-radius: 12px;
+        padding: 0 20px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        color: #031327;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      }
+
+      .features {
+        margin-top: 46px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+      }
+
+      .feature {
+        background: rgba(14, 20, 45, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        padding: 18px;
+      }
+
+      .feature h3 {
+        margin: 0;
+        font-size: 1.02rem;
+      }
+
+      .feature p {
+        margin: 10px 0 0;
+        color: var(--muted);
+        line-height: 1.45;
+        font-size: 0.95rem;
+      }
+
+      footer {
+        margin-top: 48px;
+        padding: 20px 0 28px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container nav">
+        <div class="brand">Proxyium</div>
+      </div>
+    </header>
+
+    <main class="container hero">
+      <h1>Fast &amp; Private Web Proxy</h1>
+      <p>
+        Open blocked websites from school, work, or public networks while keeping your browsing private.
+      </p>
+
+      <form class="proxy-form" onsubmit="event.preventDefault(); alert('Demo only. Connect your backend proxy endpoint here.');">
+        <input type="url" placeholder="Enter URL (e.g., https://example.com)" required />
+        <button type="submit">Go</button>
+      </form>
+
+      <section class="features">
+        <article class="feature">
+          <h3>Secure Connection</h3>
+          <p>Traffic is encrypted in transit and routed through a proxy layer.</p>
+        </article>
+        <article class="feature">
+          <h3>No Installation</h3>
+          <p>Use directly in the browser without extensions or additional software.</p>
+        </article>
+        <article class="feature">
+          <h3>Simple Interface</h3>
+          <p>Paste a URL, press Go, and access content in seconds.</p>
+        </article>
+      </section>
+    </main>
+
+    <footer>
+      Demo HTML recreation inspired by proxy landing page layouts.
+    </footer>
+  </body>
+</html>
