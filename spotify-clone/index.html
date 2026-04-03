@@ -3,56 +3,602 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Spotify Web Clone</title>
-    <link rel="stylesheet" href="styles.css" />
+    <title>Spotify Clone (Single File)</title>
+    <style>
+      :root {
+        --bg: #090b10;
+        --panel: rgba(20, 24, 36, 0.85);
+        --panel-2: rgba(33, 39, 58, 0.75);
+        --text: #f7f9ff;
+        --muted: #a8b0c5;
+        --accent: #1ed760;
+        --accent-dark: #14a446;
+        --line: rgba(255, 255, 255, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 15% 15%, #1f3f28 0%, transparent 35%),
+          radial-gradient(circle at 85% 0%, #233064 0%, transparent 30%),
+          linear-gradient(165deg, #0b0d15 0%, #08090f 45%, #05060b 100%);
+      }
+
+      .layout {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 18px 36px;
+      }
+
+      .hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .title {
+        margin: 0;
+        font-size: clamp(1.4rem, 2.8vw, 2.1rem);
+      }
+
+      .subtitle {
+        margin: 6px 0 0;
+        color: var(--muted);
+      }
+
+      .pill {
+        border: 1px solid var(--line);
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 16px;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 16px;
+        backdrop-filter: blur(10px);
+      }
+
+      .card h2 {
+        margin: 0 0 10px;
+        font-size: 1.04rem;
+      }
+
+      .card p {
+        margin: 8px 0;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .field {
+        margin-bottom: 10px;
+      }
+
+      .field label {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      input,
+      button {
+        border-radius: 11px;
+        border: 1px solid transparent;
+        font-size: 0.95rem;
+      }
+
+      input {
+        width: 100%;
+        color: var(--text);
+        background: var(--panel-2);
+        border-color: var(--line);
+        padding: 12px;
+      }
+
+      button {
+        cursor: pointer;
+        color: var(--text);
+        background: var(--panel-2);
+        border-color: var(--line);
+        padding: 11px 14px;
+      }
+
+      button:hover {
+        filter: brightness(1.12);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--accent) 0%, #26cf61 100%);
+        color: #0f151f;
+        font-weight: 700;
+      }
+
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #2be56e 0%, var(--accent) 100%);
+      }
+
+      .btn-danger {
+        background: rgba(255, 80, 100, 0.2);
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .status {
+        margin-top: 8px;
+        font-size: 0.88rem;
+        color: var(--muted);
+      }
+
+      .now {
+        display: grid;
+        grid-template-columns: 92px 1fr;
+        gap: 14px;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px;
+      }
+
+      .cover {
+        width: 92px;
+        height: 92px;
+        border-radius: 10px;
+        background: linear-gradient(140deg, #1b1f2f, #2f374f);
+        border: 1px solid var(--line);
+        object-fit: cover;
+      }
+
+      .track-title {
+        margin: 0;
+      }
+
+      .controls {
+        margin-top: 12px;
+      }
+
+      .control-btn {
+        min-width: 52px;
+      }
+
+      .hint {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 0.84rem;
+      }
+
+      .search-wrap {
+        margin-top: 12px;
+      }
+
+      .results {
+        list-style: none;
+        padding: 0;
+        margin: 8px 0 0;
+        max-height: 390px;
+        overflow: auto;
+      }
+
+      .results li {
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .results .meta {
+        min-width: 0;
+      }
+
+      .results .meta strong,
+      .results .meta span {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .results .meta span {
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .results a {
+        color: #9be4ff;
+        text-decoration: none;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 7px 10px;
+      }
+
+      .results a:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 900px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
   </head>
   <body>
-    <main class="app">
-      <header class="topbar">
-        <h1>Spotify Clone</h1>
-        <p class="sub">Connect with your own Spotify account (OAuth)</p>
-      </header>
-
-      <section class="card auth-card">
-        <h2>1) Connect Spotify</h2>
-        <p>
-          Add your Spotify app <strong>Client ID</strong>, then sign in. Your token is
-          stored in your browser only.
-        </p>
-        <label for="clientId">Spotify Client ID</label>
-        <input id="clientId" type="text" placeholder="Paste your Spotify Client ID" />
-
-        <label for="redirectUri">Redirect URI (must match your Spotify app)</label>
-        <input id="redirectUri" type="text" />
-
-        <div class="row">
-          <button id="loginBtn" class="primary">Login with Spotify</button>
-          <button id="logoutBtn" class="ghost">Logout</button>
+    <main class="layout">
+      <section class="hero">
+        <div>
+          <h1 class="title">Spotify Clone</h1>
+          <p class="subtitle">Single-file HTML app with real Spotify OAuth (PKCE).</p>
         </div>
-        <p id="authStatus" class="status">Not connected</p>
+        <div class="pill">Connects to your own Spotify account</div>
       </section>
 
-      <section class="card now-playing">
-        <h2>2) Now Playing</h2>
-        <div id="trackInfo" class="track-info">No track loaded yet.</div>
-        <div class="row">
-          <button id="prevBtn">⏮</button>
-          <button id="playPauseBtn">⏯</button>
-          <button id="nextBtn">⏭</button>
-        </div>
-        <p class="hint">Playback controls require Spotify Premium + an active device.</p>
-      </section>
+      <section class="grid">
+        <article class="card">
+          <h2>Connect Spotify</h2>
+          <p class="muted">Enter your Spotify app Client ID and a valid Redirect URI from your Spotify Developer app settings.</p>
 
-      <section class="card search-card">
-        <h2>3) Search Tracks</h2>
-        <div class="row">
-          <input id="searchInput" type="text" placeholder="Search songs or artists" />
-          <button id="searchBtn" class="primary">Search</button>
-        </div>
-        <ul id="results" class="results"></ul>
+          <div class="field">
+            <label for="clientId">Client ID</label>
+            <input id="clientId" placeholder="Spotify Client ID" />
+          </div>
+
+          <div class="field">
+            <label for="redirectUri">Redirect URI</label>
+            <input id="redirectUri" />
+          </div>
+
+          <div class="row">
+            <button id="loginBtn" class="btn-primary">Login with Spotify</button>
+            <button id="logoutBtn" class="btn-danger">Logout</button>
+          </div>
+          <div id="authStatus" class="status">Not connected</div>
+
+          <div class="search-wrap">
+            <h2>Search Tracks</h2>
+            <div class="row">
+              <input id="searchInput" placeholder="Search songs or artists" />
+              <button id="searchBtn" class="btn-primary">Search</button>
+            </div>
+            <ul id="results" class="results"></ul>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Now Playing</h2>
+          <div class="now">
+            <img id="coverArt" class="cover" alt="Album cover" />
+            <div>
+              <p id="trackTitle" class="track-title">No track loaded</p>
+              <p id="trackArtist" class="muted">—</p>
+              <p id="trackAlbum" class="muted">Album: —</p>
+            </div>
+          </div>
+
+          <div class="row controls">
+            <button id="prevBtn" class="control-btn">⏮</button>
+            <button id="playPauseBtn" class="control-btn">⏯</button>
+            <button id="nextBtn" class="control-btn">⏭</button>
+          </div>
+
+          <p class="hint">Playback controls need Spotify Premium and an active playback device.</p>
+        </article>
       </section>
     </main>
 
-    <script src="app.js"></script>
+    <script>
+      const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
+      const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
+      const API_BASE = "https://api.spotify.com/v1";
+      const SCOPES = [
+        "user-read-private",
+        "user-read-email",
+        "user-read-playback-state",
+        "user-modify-playback-state",
+      ];
+
+      const $ = (id) => document.getElementById(id);
+      const fallbackCover =
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%231b1f2f'/%3E%3Cstop offset='1' stop-color='%232f374f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='300' height='300' fill='url(%23g)'/%3E%3Ccircle cx='150' cy='150' r='72' fill='none' stroke='%23a8b0c5' stroke-width='7'/%3E%3Ccircle cx='150' cy='150' r='14' fill='%23a8b0c5'/%3E%3C/svg%3E";
+
+      let pollId = null;
+
+      function initFields() {
+        $("clientId").value = localStorage.getItem("spotify_client_id") || "";
+        $("redirectUri").value =
+          localStorage.getItem("spotify_redirect_uri") ||
+          `${window.location.origin}${window.location.pathname}`;
+        $("coverArt").src = fallbackCover;
+      }
+
+      function randomString(len = 64) {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        let out = "";
+        for (let i = 0; i < len; i += 1) out += chars.charAt(Math.floor(Math.random() * chars.length));
+        return out;
+      }
+
+      async function sha256(input) {
+        const data = new TextEncoder().encode(input);
+        return crypto.subtle.digest("SHA-256", data);
+      }
+
+      function b64url(buf) {
+        return btoa(String.fromCharCode(...new Uint8Array(buf)))
+          .replace(/\+/g, "-")
+          .replace(/\//g, "_")
+          .replace(/=+$/g, "");
+      }
+
+      async function buildCodeChallenge(verifier) {
+        return b64url(await sha256(verifier));
+      }
+
+      function getToken() {
+        return localStorage.getItem("spotify_access_token");
+      }
+
+      function setStatus(text) {
+        $("authStatus").textContent = text;
+      }
+
+      function clearUi() {
+        $("trackTitle").textContent = "No track loaded";
+        $("trackArtist").textContent = "—";
+        $("trackAlbum").textContent = "Album: —";
+        $("coverArt").src = fallbackCover;
+        $("results").innerHTML = "";
+      }
+
+      function logout() {
+        [
+          "spotify_access_token",
+          "spotify_client_id",
+          "spotify_redirect_uri",
+          "spotify_state",
+          "spotify_code_verifier",
+        ].forEach((k) => localStorage.removeItem(k));
+
+        if (pollId) {
+          clearInterval(pollId);
+          pollId = null;
+        }
+
+        clearUi();
+        setStatus("Logged out");
+      }
+
+      async function spotifyFetch(path, opts = {}) {
+        const token = getToken();
+        if (!token) throw new Error("Not connected. Please login first.");
+
+        const res = await fetch(`${API_BASE}${path}`, {
+          ...opts,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            ...(opts.headers || {}),
+          },
+        });
+
+        if (!res.ok) {
+          const msg = await res.text();
+          throw new Error(`Spotify API error (${res.status}): ${msg}`);
+        }
+
+        if (res.status === 204) return null;
+        return res.json();
+      }
+
+      async function login() {
+        const clientId = $("clientId").value.trim();
+        const redirectUri = $("redirectUri").value.trim();
+
+        if (!clientId || !redirectUri) {
+          setStatus("Client ID + Redirect URI are required.");
+          return;
+        }
+
+        localStorage.setItem("spotify_client_id", clientId);
+        localStorage.setItem("spotify_redirect_uri", redirectUri);
+
+        const state = randomString(16);
+        const verifier = randomString(96);
+        const challenge = await buildCodeChallenge(verifier);
+
+        localStorage.setItem("spotify_state", state);
+        localStorage.setItem("spotify_code_verifier", verifier);
+
+        const params = new URLSearchParams({
+          response_type: "code",
+          client_id: clientId,
+          redirect_uri: redirectUri,
+          state,
+          scope: SCOPES.join(" "),
+          code_challenge_method: "S256",
+          code_challenge: challenge,
+        });
+
+        window.location.href = `${AUTH_ENDPOINT}?${params.toString()}`;
+      }
+
+      async function maybeExchangeCode() {
+        const url = new URL(window.location.href);
+        const code = url.searchParams.get("code");
+        if (!code) return;
+
+        const state = url.searchParams.get("state");
+        const savedState = localStorage.getItem("spotify_state");
+        const verifier = localStorage.getItem("spotify_code_verifier");
+        const clientId = localStorage.getItem("spotify_client_id");
+        const redirectUri = localStorage.getItem("spotify_redirect_uri");
+
+        if (!savedState || savedState !== state || !verifier || !clientId || !redirectUri) {
+          throw new Error("OAuth state mismatch or missing stored login data.");
+        }
+
+        const body = new URLSearchParams({
+          client_id: clientId,
+          grant_type: "authorization_code",
+          code,
+          redirect_uri: redirectUri,
+          code_verifier: verifier,
+        });
+
+        const res = await fetch(TOKEN_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body,
+        });
+
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(`Token exchange failed: ${txt}`);
+        }
+
+        const tokenData = await res.json();
+        localStorage.setItem("spotify_access_token", tokenData.access_token);
+
+        const clean = new URL(window.location.href);
+        clean.search = "";
+        window.history.replaceState({}, document.title, clean.toString());
+      }
+
+      async function refreshNowPlaying() {
+        try {
+          const data = await spotifyFetch("/me/player/currently-playing");
+          if (!data || !data.item) {
+            $("trackTitle").textContent = "Nothing is currently playing";
+            $("trackArtist").textContent = "Start music in Spotify and refresh.";
+            $("trackAlbum").textContent = "Album: —";
+            $("coverArt").src = fallbackCover;
+            return;
+          }
+
+          const track = data.item;
+          const artists = track.artists.map((a) => a.name).join(", ");
+          const image = track.album.images?.[1]?.url || track.album.images?.[0]?.url || fallbackCover;
+
+          $("trackTitle").textContent = track.name;
+          $("trackArtist").textContent = artists;
+          $("trackAlbum").textContent = `Album: ${track.album.name}`;
+          $("coverArt").src = image;
+        } catch (err) {
+          setStatus(err.message);
+        }
+      }
+
+      async function playback(action) {
+        try {
+          await spotifyFetch(`/me/player/${action}`, { method: "POST" });
+          setTimeout(refreshNowPlaying, 600);
+        } catch (err) {
+          setStatus(err.message);
+        }
+      }
+
+      async function playPause() {
+        try {
+          const state = await spotifyFetch("/me/player");
+          const action = state?.is_playing ? "pause" : "play";
+          await playback(action);
+        } catch (err) {
+          setStatus(err.message);
+        }
+      }
+
+      async function searchTracks() {
+        const q = $("searchInput").value.trim();
+        if (!q) return;
+
+        const list = $("results");
+        list.innerHTML = "<li>Searching…</li>";
+
+        try {
+          const data = await spotifyFetch(`/search?type=track&limit=12&q=${encodeURIComponent(q)}`);
+          const items = data?.tracks?.items || [];
+
+          if (!items.length) {
+            list.innerHTML = "<li>No results found.</li>";
+            return;
+          }
+
+          list.innerHTML = items
+            .map((track) => {
+              const artists = track.artists.map((a) => a.name).join(", ");
+              return `
+                <li>
+                  <div class="meta">
+                    <strong>${track.name}</strong>
+                    <span>${artists}</span>
+                  </div>
+                  <a href="${track.external_urls.spotify}" target="_blank" rel="noopener noreferrer">Open</a>
+                </li>
+              `;
+            })
+            .join("");
+        } catch (err) {
+          list.innerHTML = `<li>${err.message}</li>`;
+        }
+      }
+
+      function bindEvents() {
+        $("loginBtn").addEventListener("click", login);
+        $("logoutBtn").addEventListener("click", logout);
+        $("prevBtn").addEventListener("click", () => playback("previous"));
+        $("playPauseBtn").addEventListener("click", playPause);
+        $("nextBtn").addEventListener("click", () => playback("next"));
+        $("searchBtn").addEventListener("click", searchTracks);
+        $("searchInput").addEventListener("keydown", (e) => {
+          if (e.key === "Enter") searchTracks();
+        });
+      }
+
+      async function init() {
+        initFields();
+        bindEvents();
+
+        try {
+          await maybeExchangeCode();
+          if (getToken()) {
+            setStatus("Connected to Spotify");
+            await refreshNowPlaying();
+            pollId = setInterval(refreshNowPlaying, 5000);
+          }
+        } catch (err) {
+          setStatus(err.message);
+        }
+      }
+
+      init();
+    </script>
   </body>
 </html>
