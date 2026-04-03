@@ -3,242 +3,120 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Proxyium Clone (Working Demo)</title>
+    <title>Proxyium Browser Launcher</title>
     <style>
       :root {
-        --bg-a: #0b1020;
-        --bg-b: #182246;
-        --panel: #0f1734;
-        --panel-2: #101c44;
+        --bg-a: #0a0f22;
+        --bg-b: #1a2c62;
         --text: #eef4ff;
-        --muted: #bcc7e5;
-        --accent: #68a9ff;
-        --accent-2: #61efc8;
-        --border: rgba(255, 255, 255, 0.14);
+        --muted: #bec9eb;
+        --accent: #67a9ff;
+        --accent2: #63ecc8;
+        --panel: rgba(255, 255, 255, 0.08);
+        --border: rgba(255, 255, 255, 0.16);
       }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      html,
+      * { box-sizing: border-box; }
       body {
         margin: 0;
-        height: 100%;
-        font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+        min-height: 100vh;
         color: var(--text);
-        background: radial-gradient(circle at 20% 0%, var(--bg-b), var(--bg-a) 62%);
-      }
-
-      .app {
-        min-height: 100%;
+        font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+        background: radial-gradient(circle at 10% 0%, var(--bg-b), var(--bg-a) 62%);
         display: grid;
-        grid-template-rows: auto auto 1fr auto;
+        place-items: center;
       }
-
-      header {
-        padding: 18px 18px 8px;
+      .card {
+        width: min(900px, 94vw);
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 22px;
+        backdrop-filter: blur(5px);
       }
-
-      .brand-row {
-        max-width: 1120px;
-        margin: 0 auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .brand {
-        font-weight: 800;
-        letter-spacing: 0.3px;
-        font-size: 1.2rem;
-      }
-
-      .badge {
-        font-size: 0.78rem;
-        color: #071127;
-        font-weight: 700;
-        padding: 7px 10px;
-        border-radius: 999px;
-        background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      }
-
-      .hero {
-        max-width: 1120px;
-        margin: 0 auto;
-        padding: 8px 18px 20px;
-      }
-
-      .hero h1 {
-        margin: 8px 0 0;
-        font-size: clamp(1.6rem, 3.7vw, 2.6rem);
-      }
-
-      .hero p {
-        margin: 10px 0 0;
-        color: var(--muted);
-      }
-
-      .toolbar-wrap {
-        padding: 0 18px;
-      }
-
-      .toolbar {
-        max-width: 1120px;
-        margin: 0 auto;
+      .brand { font-weight: 800; font-size: 1.25rem; }
+      h1 { margin: 12px 0 8px; font-size: clamp(1.6rem, 4vw, 2.5rem); }
+      p { margin: 0; color: var(--muted); }
+      form {
+        margin-top: 18px;
         display: grid;
         grid-template-columns: 1fr auto;
         gap: 10px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 10px;
       }
-
-      .url-row {
+      .row {
+        grid-column: 1 / -1;
         display: grid;
-        grid-template-columns: auto 1fr auto;
-        gap: 8px;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
       }
-
-      .small-btn,
-      .go-btn,
-      select,
-      input {
-        border: 1px solid var(--border);
+      input, select, button {
         border-radius: 10px;
-        padding: 11px 12px;
+        border: 1px solid var(--border);
+        padding: 12px 14px;
         font: inherit;
       }
-
-      input,
-      select,
-      .small-btn {
-        background: #f4f7ff;
-        color: #101939;
-      }
-
-      input:focus,
-      select:focus {
-        outline: 2px solid rgba(104, 169, 255, 0.45);
-      }
-
-      .small-btn {
-        min-width: 42px;
-        cursor: pointer;
-      }
-
-      .go-btn {
+      input, select { background: #f4f7ff; color: #102043; }
+      button {
         border: 0;
         cursor: pointer;
-        color: #041127;
+        color: #081426;
         font-weight: 700;
-        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
       }
-
-      .viewer {
-        padding: 12px 18px 0;
+      .quick {
+        margin-top: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
       }
-
-      .frame-shell {
-        max-width: 1120px;
-        height: min(72vh, 860px);
-        margin: 0 auto;
-        border-radius: 14px;
-        overflow: hidden;
+      .quick button {
+        background: rgba(255,255,255,.15);
+        color: var(--text);
         border: 1px solid var(--border);
-        background: rgba(7, 11, 26, 0.85);
+        font-weight: 600;
       }
-
-      iframe {
-        width: 100%;
-        height: 100%;
-        border: 0;
-        background: #fff;
-      }
-
-      .status {
-        max-width: 1120px;
-        margin: 10px auto 0;
-        color: var(--muted);
-        font-size: 0.9rem;
-        line-height: 1.4;
-      }
-
-      footer {
-        padding: 14px 18px 22px;
-        color: var(--muted);
-        font-size: 0.83rem;
-      }
-
-      footer .inner {
-        max-width: 1120px;
-        margin: 0 auto;
-      }
-
-      @media (max-width: 840px) {
-        .toolbar {
-          grid-template-columns: 1fr;
-        }
-
-        .url-row {
-          grid-template-columns: 1fr;
-        }
+      .status { margin-top: 12px; color: var(--muted); font-size: .92rem; }
+      .note { margin-top: 10px; font-size: .85rem; color: var(--muted); }
+      @media (max-width: 700px) {
+        .row { grid-template-columns: 1fr; }
+        form { grid-template-columns: 1fr; }
       }
     </style>
   </head>
   <body>
-    <div class="app">
-      <header>
-        <div class="brand-row">
-          <div class="brand">Proxyium</div>
-          <div class="badge">Working Demo</div>
-        </div>
-      </header>
+    <main class="card">
+      <div class="brand">Proxyium</div>
+      <h1>Real browsing launcher</h1>
+      <p>This opens sites in full browser context (same tab/new tab), with optional proxy mirror mode.</p>
 
-      <section class="hero">
-        <h1>Browse through a web proxy</h1>
-        <p>Enter a URL, choose a proxy mode, and load the page below.</p>
-      </section>
-
-      <section class="toolbar-wrap">
-        <form class="toolbar" id="proxy-form">
-          <div class="url-row">
-            <button class="small-btn" id="home-btn" type="button" title="Home">⌂</button>
-            <input id="url-input" type="text" placeholder="https://example.com" required />
-            <button class="go-btn" type="submit">Go</button>
-          </div>
-
-          <select id="proxy-mode" aria-label="Proxy mode">
-            <option value="r-jina-http">r.jina.ai (HTTP mirror)</option>
-            <option value="r-jina-https" selected>r.jina.ai (HTTPS mirror)</option>
-            <option value="open-direct">Open direct in new tab</option>
+      <form id="launch-form">
+        <div class="row">
+          <input id="url-input" type="text" placeholder="https://google.com" required />
+          <select id="mode">
+            <option value="direct-same" selected>Browse directly (same tab)</option>
+            <option value="direct-new">Browse directly (new tab)</option>
+            <option value="proxy-jina">Proxy mirror (r.jina.ai)</option>
           </select>
-        </form>
-
-        <div class="status" id="status">Ready.</div>
-      </section>
-
-      <section class="viewer">
-        <div class="frame-shell">
-          <iframe id="viewer-frame" title="Proxy viewer" referrerpolicy="no-referrer"></iframe>
         </div>
-      </section>
+        <button type="submit">Browse</button>
+      </form>
 
-      <footer>
-        <div class="inner">
-          Use only where permitted. Some targets block embedding/proxy access and may fail to load.
-        </div>
-      </footer>
-    </div>
+      <div class="quick">
+        <button type="button" data-url="https://google.com">Google</button>
+        <button type="button" data-url="https://youtube.com">YouTube</button>
+        <button type="button" data-url="https://wikipedia.org">Wikipedia</button>
+        <button type="button" data-url="https://reddit.com">Reddit</button>
+      </div>
+
+      <div class="status" id="status">Ready.</div>
+      <div class="note">Note: many modern sites block iframe embedding; direct modes are used for real browsing.</div>
+    </main>
 
     <script>
-      const form = document.getElementById('proxy-form');
-      const urlInput = document.getElementById('url-input');
-      const modeSelect = document.getElementById('proxy-mode');
-      const viewerFrame = document.getElementById('viewer-frame');
-      const statusEl = document.getElementById('status');
-      const homeBtn = document.getElementById('home-btn');
+      const form = document.getElementById('launch-form');
+      const input = document.getElementById('url-input');
+      const mode = document.getElementById('mode');
+      const status = document.getElementById('status');
+      const quickButtons = document.querySelectorAll('.quick button');
 
       function normalizeUrl(value) {
         const trimmed = value.trim();
@@ -247,58 +125,47 @@
         return `https://${trimmed}`;
       }
 
-      function buildProxyUrl(rawUrl, mode) {
-        if (mode === 'r-jina-http') {
-          return `https://r.jina.ai/http://${rawUrl.replace(/^https?:\/\//i, '')}`;
-        }
-
-        if (mode === 'r-jina-https') {
-          return `https://r.jina.ai/http://${rawUrl}`.replace('http://https://', 'http://');
-        }
-
-        return rawUrl;
+      function proxyUrl(url) {
+        return `https://r.jina.ai/http://${url.replace(/^https?:\/\//i, '')}`;
       }
 
-      function setStatus(text) {
-        statusEl.textContent = text;
-      }
-
-      function loadUrl(inputValue) {
-        const normalized = normalizeUrl(inputValue);
+      function launch(url) {
+        const normalized = normalizeUrl(url);
         if (!normalized) {
-          setStatus('Enter a valid URL first.');
+          status.textContent = 'Enter a valid URL first.';
           return;
         }
 
-        const mode = modeSelect.value;
+        if (mode.value === 'direct-same') {
+          status.textContent = `Opening in same tab: ${normalized}`;
+          window.location.href = normalized;
+          return;
+        }
 
-        if (mode === 'open-direct') {
+        if (mode.value === 'direct-new') {
+          status.textContent = `Opening in new tab: ${normalized}`;
           window.open(normalized, '_blank', 'noopener,noreferrer');
-          setStatus(`Opened directly in new tab: ${normalized}`);
           return;
         }
 
-        const proxiedUrl = buildProxyUrl(normalized, mode);
-        viewerFrame.src = proxiedUrl;
-        setStatus(`Loading: ${normalized} (via ${mode})`);
+        const mirrored = proxyUrl(normalized);
+        status.textContent = `Opening proxy mirror: ${mirrored}`;
+        window.location.href = mirrored;
       }
 
       form.addEventListener('submit', (event) => {
         event.preventDefault();
-        loadUrl(urlInput.value);
+        launch(input.value);
       });
 
-      homeBtn.addEventListener('click', () => {
-        urlInput.value = 'https://example.com';
-        loadUrl(urlInput.value);
+      quickButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          input.value = button.dataset.url;
+          launch(input.value);
+        });
       });
 
-      viewerFrame.addEventListener('load', () => {
-        setStatus('Page loaded (if target allows proxy/embedding).');
-      });
-
-      urlInput.value = 'https://example.com';
-      loadUrl(urlInput.value);
+      input.value = 'https://google.com';
     </script>
   </body>
 </html>
